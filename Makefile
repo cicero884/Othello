@@ -1,9 +1,10 @@
-CFLAGS=-O3 -Wall -lpthread
+CC=clang
+CFLAGS=-Wall -O3
 HEADER=-I lib
 
-all: main.o board.o ai.o rule.o
-	gcc $(CFLAGS) -o ./bin/othello ./obj/*
+all: main.o board.o ai.o basic.o list.o
+	$(CC) $(CFLAGS) -lpthread -o ./bin/othello ./obj/*
 %.o: ./src/%.c
-	gcc $(CFLAGS) $(HEADER) -c -o ./obj/$@ $<
+	$(CC) $(CFLAGS) $(HEADER) -c -o ./obj/$@ $<
 clear:
 	rm ./obj/* ./bin/*

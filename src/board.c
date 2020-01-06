@@ -1,34 +1,40 @@
 #include"board.h"
 status *Current;
-//0=empty 1=white -2=black -1=putable
-int_fast8_t* Print_board(bool human){
-	char tmp;
-	if(human){
-		for(int_fast8_t i=0;i<SIZE*2+1;++i) printf("-");
-	}
-	for(int_fast8_t i=0;i<SIZE;++i){
-		if(human) printf("\n|");
-		for(int_fast8_t j=0;j<SIZE;++j){
-			tmp=Current->board[i][j];
-			printf("%c",(tmp>0)? 'o':(tmp<-1)? 'x':' ');
-			if(human) printf("|");
-		}
-		printf("\n");
-		if(human){
-			for(int_fast8_t j=0;j<SIZE*2+1;++j) printf("-");
-			printf("\n");
-		}
-	}
-	printf("%d\n",Current->step_cnt);
-	return (int_fast8_t*)Current->board;
+void Init_game(){
+	Current=Init_board();
+	Get_next_status(Current);
+	return;
+}
+status* Get_board(){
+	printf("\e[1;1H\e[2J");
+	Print_board(Current);
+	return Current;
 }
 bool Input(int_fast8_t x,int_fast8_t y){
-	unsigned pos=y*SIZE+x,c_step=Current->step_cnt;
-	for(unsigned i=0;i<Current->child_cnt;++i){
-		if(Current->child[i]->step[c_step]==pos){
-			
+	if(BETWEEN(0,x,SIZE)&&BETWEEN(0,y,SIZE)&&(!GET_BIT(Current->puted_board,POS(x,y)))){
+		int_fast8_t p=POS(x,y);
+		node* i;
+		for(i=Current->children;i;i=i->next){
+			if(GET_BIT(((status*)i->data)->puted_board,p))	break;
+		}
+		if(i){
+			node *tmp;
+			while(Current->children){
+				tmp=Current->children;
+				Current->children=Current->children->next;
+				if(tmp!=i){
+					free(tmp->data);
+					free(tmp);
+				}
+			}
+			Current->children=i;
+			Current=((status*)Current->children->data);
+			Get_next_status(Current);
+			if(!Current->children) Current->next=!Current->next;
+			Get_next_status(Current);
+			return true;
 		}
 	}
-	
-	return true;
+	printf("illegal input on p%d,%hhd,%hhd",Current->next&1,x,y);
+	return false;
 }

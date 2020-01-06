@@ -1,34 +1,37 @@
 #include"main.h"
-bool p1,p2;
+bool AI_tern;
 int main(){
+	int_fast8_t x,y;
 	Init();
-	Current=Init_board();
-	while(Get_next_status(Current)){
-		Print_board(false);
-		//Input();
-	}
+	status* current=Get_board();
+	do{
+		if(GET_BIT(current->next,0)==AI_tern){
+			if(!finished) sleep(5);
+			struct coordinate c=Get_output();
+			if(!Input(c.x,c.y)){
+				printf("AIerror!\n");
+				//return 1;
+			}
+		}
+		else{
+			printf("\nyour turn:");
+			scanf("%hhd %hhd",&x,&y);
+			if(!Input(x,y)) continue;
+		}
+		current=Get_board();
+		Record_ancient(current);
+	}while(current->children);
+	printf("score: %d %d\n",current->point[0],current->point[1]);
+	printf("  ________                        ________                     \n /  _____/_____    _____   ____   \\_____  \\___  __ ___________ \n/   \\  ___\\__  \\  /     \\_/ __ \\   /   |   \\  \\/ // __ \\_  __ \\\n\\    \\_\\  \\/ __ \\|  Y Y  \\  ___/  /    |    \\   /\\  ___/|  | \\/\n \\______  (____  /__|_|  /\\___  > \\_______  /\\_/  \\___  >__|   \n        \\/     \\/      \\/     \\/          \\/          \\/       \n");
 	return 0;
 }
-
 void Init(){
-	int gameType;
-	printf("game type:(1:PVP 2:PVE)\n");
-	if(scanf("%d",&gameType)!=1) exit(1);
-	switch(gameType){
-		case 1:
-			p1=p2=true;
-			break;
-		case 2:
-			p1=true;
-			p2=false;
-			int aiFirst;
-			printf("ai first? (true:1 false:0)\n");
-			if(scanf("%d",&aiFirst)) exit(1);
-			if(aiFirst){
-				Init_ai();
-				Input(SIZE/2,SIZE/2+1);
-			}
-			break;
-	}
-
+	Init_game();
+	int aiFirst;
+	do{
+		printf("ai first? (true:1 false:0)\n");
+	}while(!scanf("%d",&aiFirst));
+	AI_tern=aiFirst;
+	Init_ai();
+	return;
 }
